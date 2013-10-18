@@ -97,16 +97,23 @@ local source={
 
 			}
 
-local xp_count =0
-local frame = CreateFrame("FRAME");
-frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
-frame:RegisterEvent("PLAYER_XP_UPDATE");
-frame:RegisterEvent("PLAYER_LEVEL_UP");
-frame:RegisterEvent("PLAYER_ENTERING_WORLD");
-frame:RegisterEvent("MERCHANT_SHOW");
-frame:SetScript("OnEvent", function(self, event, ...)
 
- if (event == "COMBAT_LOG_EVENT_UNFILTERED") then
+
+local xp_count =0
+
+local MDFoo = CreateFrame("frame")
+MDFoo:SetScript("OnEvent", function(self, event, ...)
+    self[event](self, ...)
+end)
+MDFoo:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED");
+MDFoo:RegisterEvent("PLAYER_XP_UPDATE");
+MDFoo:RegisterEvent("PLAYER_LEVEL_UP");
+MDFoo:RegisterEvent("PLAYER_ENTERING_WORLD");
+MDFoo:RegisterEvent("MERCHANT_SHOW");
+
+
+
+function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
  
       local timestamp, type, hideCaster,                                                                    
       sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = ...  
@@ -130,6 +137,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
             end
     	end
     end
+
     if (type=="SPELL_INTERRUPT") then
         local spellId, spellName, spellSchool,extraSpellId, extraSpellName,extraSchool = select(12,...)
         if (source[sourceName]) then
@@ -141,11 +149,11 @@ frame:SetScript("OnEvent", function(self, event, ...)
             SendChatMessage(caster .. " ++ " .. spellName .. targetMsg .. " >> " .. extraSpellName ,"SAY");
         end
     end
-  end
-  
+end
  -- local message, sender, language, channelString, target, flags, unknown, channelNumber, channelName, unknown, counter = ...
  
- if (event== "MERCHANT_SHOW") then
+
+function MDFoo:MERCHANT_SHOW(...)
  --SELL GREY
     --[[local bag, slot   
         for bag = 0, 4 do
@@ -180,8 +188,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
                         end
                 end
         end
-  end
-  if (event == "PLAYER_ENTERING_WORLD") then
+end
+
+function MDFoo:PLAYER_ENTERING_WORLD(...)
   --[[BOSS FRAMES
   	for i = 1, 4 do 
 		local frame = _G["Boss"..i.."TargetFrame"]
@@ -189,9 +198,9 @@ frame:SetScript("OnEvent", function(self, event, ...)
 		frame:SetPoint("CENTER",UIParent,"CENTER",-450,200)
 		frame.SetPoint = function() end	
 	end]]
-  end
+end
   
-if (event == "PLAYER_XP_UPDATE") then
+function MDFoo:PLAYER_XP_UPDATE(...)
 	local arg = {...} 
 	xp_count = xp_count+ 1
 	if (xp_count > 20) then
@@ -200,12 +209,10 @@ if (event == "PLAYER_XP_UPDATE") then
 	end
 end
 
-if (event == "PLAYER_LEVEL_UP") then
+function MDFoo:PLAYER_LEVEL_UP(...)
 	SendChatMessage("DING  " .. UnitLevel("player")+1,"say")
 	xp_count = 0
 end
- 
-end);
 
 
 -- COMBAT TEXT SPAM REMOVE
