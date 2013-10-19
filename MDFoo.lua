@@ -179,8 +179,6 @@ local source={
                 ["Pandairelia"]={chat="OFFICER",enabled=true},
                 ["Molossus"]={chat="OFFICER",enabled=true},
                 ["Comatose"]={chat="OFFICER",enabled=true},
-
-
 			}
 
 
@@ -253,21 +251,22 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
     end
 
     if (type=="UNIT_DIED") then
-
-        local total=0
-        local k={}
-        for i,v in pairs(targets[destGUID]) do
-            total = total + v.amount
-            table.insert(k,{name=v.name,amount=v.amount})
+        if (isPlayerGUID(destGUID)) then    
+            local total=0
+            local k={}
+            for i,v in pairs(targets[destGUID]) do
+                total = total + v.amount
+                table.insert(k,{name=v.name,amount=v.amount})
+            end
+            sort(k, function(a,b) return a.amount > b.amount end)
+            SendChatMessage("Karate --- auf "..destName,"PARTY")
+            for i,v in pairs(k) do
+                if (i>3) then break end
+                SendChatMessage(i .. ". ".. v.name .. " >> " ..round2((v.amount*100)/total) .. "% " .. "("..comma_value(v.amount)..")","PARTY")
+            end
+            targets[destGUID]=nil
         end
-        sort(k, function(a,b) return a.amount > b.amount end)
-        SendChatMessage("Karate --- auf "..destName,"PARTY")
-        for i,v in pairs(k) do
-            SendChatMessage(i .. ". ".. v.name .. " >> " ..round2((v.amount*100)/total) .. "% " .. "("..comma_value(v.amount)..")","PARTY")
-        end
-        targets[destGUID]=nil
     end
-
 end
  -- local message, sender, language, channelString, target, flags, unknown, channelNumber, channelName, unknown, counter = ...
  
@@ -355,6 +354,8 @@ function round2(num, idp)
   return tonumber(string.format("%." .. (idp or 0) .. "f", num))
 end
 
+
+
 function addDamage(destGUID,amount,source)
         if (targets[destGUID] == nil) then
             targets[destGUID] = {}
@@ -368,6 +369,15 @@ function addDamage(destGUID,amount,source)
         targets[destGUID]=t
 end
 
+function isPlayerGUID(guid) 
+   local first3 = tonumber("0x"..strsub(guid, 3,5))
+   local unitType = bit.band(first3,0x00f)
+
+   if (unitType == 0x000) then
+      return true
+  end
+  return false
+end
 
 -- COMBAT TEXT SPAM REMOVE
 LoadAddOn("Blizzard_CombatText")
