@@ -251,22 +251,21 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
     end
 
     if (type=="UNIT_DIED") then
-        if (isPlayerGUID(destGUID)) then    
-            local total=0
-            local k={}
-            for i,v in pairs(targets[destGUID]) do
-                total = total + v.amount
-                table.insert(k,{name=v.name,amount=v.amount})
-            end
-            sort(k, function(a,b) return a.amount > b.amount end)
-            SendChatMessage("Karate --- auf "..destName,"PARTY")
-            for i,v in pairs(k) do
-                if (i>3) then break end
-                SendChatMessage(i .. ". ".. v.name .. " >> " ..round2((v.amount*100)/total) .. "% " .. "("..comma_value(v.amount)..")","PARTY")
-            end
-            targets[destGUID]=nil
+        local total=0
+        local k={}
+        for i,v in pairs(targets[destGUID]) do
+            total = total + v.amount
+            table.insert(k,{name=v.name,amount=v.amount})
         end
+        sort(k, function(a,b) return a.amount > b.amount end)
+        SendChatMessage("Karate --- auf "..destName,"PARTY")
+        for i,v in pairs(k) do
+            if (i>3) then break end
+            SendChatMessage(i .. ". ".. v.name .. " >> " ..round2((v.amount*100)/total) .. "% " .. "("..comma_value(v.amount)..")","PARTY")
+        end
+        targets[destGUID]=nil
     end
+    
 end
  -- local message, sender, language, channelString, target, flags, unknown, channelNumber, channelName, unknown, counter = ...
  
@@ -367,16 +366,6 @@ function addDamage(destGUID,amount,source)
         end
         t[source.GUID].amount=t[source.GUID].amount + amount
         targets[destGUID]=t
-end
-
-function isPlayerGUID(guid) 
-   local first3 = tonumber("0x"..strsub(guid, 3,5))
-   local unitType = bit.band(first3,0x00f)
-
-   if (unitType == 0x000) then
-      return true
-  end
-  return false
 end
 
 -- COMBAT TEXT SPAM REMOVE
