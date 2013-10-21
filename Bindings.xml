@@ -1,0 +1,5 @@
+<Bindings>
+  <Binding name="KARATE" description=""  header="KARATE">
+  		KarateGO()
+  </Binding>
+</Bindings>

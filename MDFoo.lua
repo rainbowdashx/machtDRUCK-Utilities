@@ -183,8 +183,8 @@ local source={
 
 
 local targets = {}
-
-
+BINDING_HEADER_KARATE = "KARATE DRUCK"
+BINDING_NAME_KARATE = "Call Karate Target"
 local xp_count =0
 
 local MDFoo = CreateFrame("frame")
@@ -196,7 +196,6 @@ MDFoo:RegisterEvent("PLAYER_XP_UPDATE");
 MDFoo:RegisterEvent("PLAYER_LEVEL_UP");
 MDFoo:RegisterEvent("PLAYER_ENTERING_WORLD");
 MDFoo:RegisterEvent("MERCHANT_SHOW");
-
 
 
 function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
@@ -213,12 +212,12 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
             amount, overkill, school, resisted, blocked, absorbed, critical, glancing, crushing = select(12,...)
         end
         
-        
-        local source={}
-        source.name=sourceName
-        source.GUID=sourceGUID
-        addDamage(destGUID,(amount or 0),source)
-
+        if (targets[destGUID] ~= nil) then
+            local source={}
+            source.name=sourceName
+            source.GUID=sourceGUID
+            addDamage(destGUID,(amount or 0),source)
+        end
     end
 
        
@@ -253,17 +252,19 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
     if (type=="UNIT_DIED") then
         local total=0
         local k={}
-        for i,v in pairs(targets[destGUID]) do
-            total = total + v.amount
-            table.insert(k,{name=v.name,amount=v.amount})
+        if (targets[destGUID] ~= nil) then
+            for i,v in pairs(targets[destGUID]) do
+                total = total + v.amount
+                table.insert(k,{name=v.name,amount=v.amount})
+            end
+            sort(k, function(a,b) return a.amount > b.amount end)
+            SendChatMessage("Karate --- auf "..destName,"RAID")
+            for i,v in pairs(k) do
+                if (i>5) then break end
+                SendChatMessage(i .. ". ".. v.name .. " >> " ..round2((v.amount*100)/total) .. "% " .. "("..comma_value(v.amount)..")","RAID")
+            end
+            targets[destGUID]=nil
         end
-        sort(k, function(a,b) return a.amount > b.amount end)
-        SendChatMessage("Karate --- auf "..destName,"PARTY")
-        for i,v in pairs(k) do
-            if (i>3) then break end
-            SendChatMessage(i .. ". ".. v.name .. " >> " ..round2((v.amount*100)/total) .. "% " .. "("..comma_value(v.amount)..")","PARTY")
-        end
-        targets[destGUID]=nil
     end
     
 end
@@ -329,6 +330,20 @@ end
 function MDFoo:PLAYER_LEVEL_UP(...)
 	SendChatMessage("DING  " .. UnitLevel("player")+1,"say")
 	xp_count = 0
+end
+
+function KarateGO()
+
+    local dest = UnitGUID("target")
+    local source={}
+    source.name="Kikitsa"
+    source.GUID=UnitGUID("player")
+    if (dest ~= nil) then
+        SendChatMessage("KARATE CALL ON:  " .. UnitName("target"),"RAID")
+        addDamage(dest,0,source)
+    else
+        print("NO KARATE TARGET")
+    end
 end
 
 function dump(o)
@@ -422,4 +437,5 @@ SLASH_READYCHECK1 = '/rc'
 SlashCmdList["CHECKROLE"] = function() InitiateRolePoll() end
 SLASH_CHECKROLE1 = '/cr'
 
-
+SlashCmdList["KARATE"] = function() KarateGO() end
+SLASH_KARATE1 = "/karate"
