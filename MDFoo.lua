@@ -187,6 +187,8 @@ BINDING_HEADER_KARATE = "KARATE DRUCK"
 BINDING_NAME_KARATE = "Call Karate Target"
 local xp_count =0
 
+local defaultChat="RAID"
+
 local MDFoo = CreateFrame("frame")
 MDFoo:SetScript("OnEvent", function(self, event, ...)
     self[event](self, ...)
@@ -258,10 +260,10 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
                 table.insert(k,{name=v.name,amount=v.amount})
             end
             sort(k, function(a,b) return a.amount > b.amount end)
-            SendChatMessage("Karate --- auf "..destName,"RAID")
+            SendChatMessage("Karate --- auf "..destName,defaultChat)
             for i,v in pairs(k) do
                 if (i>5) then break end
-                SendChatMessage(i .. ". ".. v.name .. " >> " ..round2((v.amount*100)/total) .. "% " .. "("..comma_value(v.amount)..")","RAID")
+                SendChatMessage(i .. ". ".. v.name .. " >> " ..round2((v.amount*100)/total) .. "% " .. "("..comma_value(v.amount)..")",defaultChat)
             end
             targets[destGUID]=nil
         end
@@ -339,7 +341,7 @@ function KarateGO()
     source.name="Kikitsa"
     source.GUID=UnitGUID("player")
     if (dest ~= nil) then
-        SendChatMessage("KARATE CALL ON:  " .. UnitName("target"),"RAID")
+        SendChatMessage("KARATE CALL ON:  " .. UnitName("target"),defaultChat)
         addDamage(dest,0,source)
     else
         print("NO KARATE TARGET")
