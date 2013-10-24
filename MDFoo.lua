@@ -244,6 +244,17 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
         end
     end
 
+    if (type=="SPELL_HEAL") then
+        local spellId, spellName, spellSchool,amount,overhealing,absorbed,critical = select(12,...)
+        if (critical and source[sourceName]) then
+            local source={}
+            source.name=sourceName
+            source.GUID=sourceGUID
+            source.amount=amount
+            source.spellName=spellName
+            addCrit(source)
+        end
+    end
        
 
     if (type== "SPELL_CAST_SUCCESS") then
@@ -397,7 +408,7 @@ function addCrit(source)
     if ((MDBam[source.GUID] ~= nil and MDBam[source.GUID].amount < source.amount) or MDBam[source.GUID] == nil) then
         MDBam[source.GUID]=source
         MDBamDB=MDBam
-        SendChatMessage("NEW CRIT RECORD for "..source.name.." (".. comma_value(source.amount) ..") with "..source.spellName,defaultChat)
+        SendChatMessage("mdBÄM >> NEW CRIT RECORD for "..source.name.." (".. comma_value(source.amount) ..") with "..source.spellName,defaultChat)
     end
 end
 
