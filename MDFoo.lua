@@ -179,15 +179,22 @@ local source={
                 ["Pandairelia"]={chat="OFFICER",enabled=true},
                 ["Molossus"]={chat="OFFICER",enabled=true},
                 ["Comatose"]={chat="OFFICER",enabled=true},
+                ["Escobär"]={chat="OFFICER",enabled=true},
+
+                ["Bossqt"]={chat="OFFICER",enabled=true},
+                ["Monkmamal"]={chat="OFFICER",enabled=true},
+                ["Moonkinmoni"]={chat="OFFICER",enabled=true},
 			}
 
 
 local targets = {}
+local MDBam={}
 BINDING_HEADER_KARATE = "KARATE DRUCK"
 BINDING_NAME_KARATE = "Call Karate Target"
 local xp_count =0
 
-local defaultChat="RAID"
+local defaultChat="PARTY"
+local karateMode="ANNOUNCE" --ALL  , MD , ANNOUNCE
 
 local MDFoo = CreateFrame("frame")
 MDFoo:SetScript("OnEvent", function(self, event, ...)
@@ -198,7 +205,13 @@ MDFoo:RegisterEvent("PLAYER_XP_UPDATE");
 MDFoo:RegisterEvent("PLAYER_LEVEL_UP");
 MDFoo:RegisterEvent("PLAYER_ENTERING_WORLD");
 MDFoo:RegisterEvent("MERCHANT_SHOW");
+MDFoo:RegisterEvent("ADDON_LOADED");
 
+function MDFoo:ADDON_LOADED(...)
+    if (...=="MDFoo" ) then
+        MDBam=MDBamDB
+    end
+end
 
 function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
  
@@ -214,11 +227,20 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
             amount, overkill, school, resisted, blocked, absorbed, critical, glancing, crushing = select(12,...)
         end
         
-        if (targets[destGUID] ~= nil) then
+        if (targets[destGUID] ~= nil or karateMode=="ALL" or (karateMode=="MD" and source[sourceName])) then
             local source={}
             source.name=sourceName
             source.GUID=sourceGUID
             addDamage(destGUID,(amount or 0),source)
+        end
+        
+        if (critical and source[sourceName]) then
+            local source={}
+            source.name=sourceName
+            source.GUID=sourceGUID
+            source.amount=amount
+            source.spellName=spellName
+            addCrit(source)
         end
     end
 
@@ -323,7 +345,7 @@ end
   
 function MDFoo:PLAYER_XP_UPDATE(...)
 	xp_count = xp_count+ 1
-	if (xp_count > 20) then
+	if (xp_count > 10) then
  		SendChatMessage("braucht noch "..(UnitXPMax("player")-UnitXP("player")).." ("..(math.floor(100-(UnitXP("player")/((UnitXPMax("player")/100))))).."%) Erfahrung bis Level "..(UnitLevel("player")+1)..".","say")
  		xp_count = 0
 	end
@@ -338,7 +360,7 @@ function KarateGO()
 
     local dest = UnitGUID("target")
     local source={}
-    source.name="Kikitsa"
+    source.name=UnitName("player")
     source.GUID=UnitGUID("player")
     if (dest ~= nil) then
         SendChatMessage("KARATE CALL ON:  " .. UnitName("target"),defaultChat)
@@ -370,7 +392,14 @@ function round2(num, idp)
   return tonumber(string.format("%." .. (idp or 0) .. "f", num))
 end
 
-
+function addCrit(source)
+    --MDBam mod
+    if ((MDBam[source.GUID] ~= nil and MDBam[source.GUID].amount < source.amount) or MDBam[source.GUID] == nil) then
+        MDBam[source.GUID]=source
+        MDBamDB=MDBam
+        SendChatMessage("NEW CRIT RECORD for "..source.name.." (".. comma_value(source.amount) ..") with "..source.spellName,defaultChat)
+    end
+end
 
 function addDamage(destGUID,amount,source)
         if (targets[destGUID] == nil) then

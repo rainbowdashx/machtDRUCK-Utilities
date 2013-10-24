@@ -2,6 +2,7 @@
 ## Title: machtDRUCK Utilities
 ## Version: 1337
 ## Author: Morf
+## SavedVariables: MDBamDB
 
 MDFoo.lua
 
