@@ -205,7 +205,7 @@ MDFoo:RegisterEvent("PLAYER_LEVEL_UP");
 MDFoo:RegisterEvent("PLAYER_ENTERING_WORLD");
 MDFoo:RegisterEvent("MERCHANT_SHOW");
 MDFoo:RegisterEvent("ADDON_LOADED");
-MDFoo:RegisterEvent("CHAT_MSG_ACHIEVEMENT");
+MDFoo:RegisterEvent("CHAT_MSG_GUILD_ACHIEVEMENT");
 MDFoo:RegisterEvent("CHAT_MSG_GUILD");
 
 function MDFoo:ADDON_LOADED(...)
@@ -383,7 +383,7 @@ function MDFoo:CHAT_MSG_GUILD(...)
     end
 end
 
-function MDFoo:CHAT_MSG_ACHIEVEMENT(...)
+function MDFoo:CHAT_MSG_GUILD_ACHIEVEMENT(...)
     print(...)
     SendChatMessage("gz","GUILD")
 end
@@ -469,7 +469,7 @@ function addDamage(destGUID,amount,source)
 end
 
 function debugTest()
-
+print("nothing")
         
 end
 
@@ -534,4 +534,4 @@ SlashCmdList["GUIDZ"] = function() ParseGUID(UnitGUID("target")) end
 SLASH_GUIDZ1="/mdid"
 
 SlashCmdList["MDDEBUG"] = function() debugTest() end
-SLASH_MDDEBUG1="/mddeb"
+SLASH_MDDEBUG1="/deb"
