@@ -166,7 +166,6 @@ local source={
                 ["Xerathyl"]={chat="OFFICER",enabled=true},
                 ["Sheeraz"]={chat="OFFICER",enabled=true},
                 ["Cerie"]={chat="OFFICER",enabled=true},
-                ["Serie"]={chat="OFFICER",enabled=true},
                 ["Dêmo"]={chat="OFFICER",enabled=true},
                 ["Peiníger"]={chat="OFFICER",enabled=true},
                 ["Soterius"]={chat="OFFICER",enabled=true},
@@ -193,8 +192,8 @@ BINDING_HEADER_KARATE = "KARATE DRUCK"
 BINDING_NAME_KARATE = "Call Karate Target"
 local xp_count =0
 
-local defaultChat="PARTY"
-local karateMode="ANNOUNCE" --ALL  , MD , ANNOUNCE
+local defaultChat="GUILD"
+local karateMode="CALL" --ALL  , MD , CALL
 
 local MDFoo = CreateFrame("frame")
 MDFoo:SetScript("OnEvent", function(self, event, ...)
@@ -206,6 +205,8 @@ MDFoo:RegisterEvent("PLAYER_LEVEL_UP");
 MDFoo:RegisterEvent("PLAYER_ENTERING_WORLD");
 MDFoo:RegisterEvent("MERCHANT_SHOW");
 MDFoo:RegisterEvent("ADDON_LOADED");
+MDFoo:RegisterEvent("CHAT_MSG_ACHIEVEMENT");
+MDFoo:RegisterEvent("CHAT_MSG_GUILD");
 
 function MDFoo:ADDON_LOADED(...)
     if (...=="MDFoo" ) then
@@ -367,6 +368,27 @@ function MDFoo:PLAYER_LEVEL_UP(...)
 	xp_count = 0
 end
 
+function MDFoo:CHAT_MSG_GUILD(...)
+    local msg=...
+    if (msg =="woh stronk smash") then
+        local k={}
+        for i,v in pairs(MDBam) do
+            table.insert(k,{name=v.name,amount=v.amount,spell=v.spellName})
+        end
+        sort(k, function(a,b) return a.amount > b.amount end)
+        SendChatMessage("mdBÄM >> Stronk smash",defaultChat)
+        for i=1,3 do
+                SendChatMessage(i..". ".. k[i].name.." with "..k[i].spell.." ("..comma_value(k[i].amount)..") ",defaultChat)
+        end
+    end
+end
+
+function MDFoo:CHAT_MSG_ACHIEVEMENT(...)
+    print(...)
+    SendChatMessage("gz","GUILD")
+end
+
+
 function KarateGO()
 
     local dest = UnitGUID("target")
@@ -412,6 +434,27 @@ function addCrit(source)
     end
 end
 
+function ParseGUID(guid)
+   local first3 = tonumber("0x"..strsub(guid, 3,5))
+   local unitType = bit.band(first3,0x00f)
+
+   if (unitType == 0x000) then
+      print("Player, ID #", strsub(guid,6))
+   elseif (unitType == 0x003) then
+      local creatureID = tonumber("0x"..strsub(guid,7,10))
+      local spawnCounter = tonumber("0x"..strsub(guid,11))
+      print("NPC, ID #",creatureID,"spawn #",spawnCounter)
+   elseif (unitType == 0x004) then
+      local petID = tonumber("0x"..strsub(guid,7,10))
+      local spawnCounter = tonumber("0x"..strsub(guid,11))
+      print("Pet, ID #",petID,"spawn #",spawnCounter)
+   elseif (unitType == 0x005) then
+      local creatureID = tonumber("0x"..strsub(guid,7,10))
+      local spawnCounter = tonumber("0x"..strsub(guid,11))
+      print("Vehicle, ID #",creatureID,"spawn #",spawnCounter)
+   end
+end
+
 function addDamage(destGUID,amount,source)
         if (targets[destGUID] == nil) then
             targets[destGUID] = {}
@@ -423,6 +466,11 @@ function addDamage(destGUID,amount,source)
         end
         t[source.GUID].amount=t[source.GUID].amount + amount
         targets[destGUID]=t
+end
+
+function debugTest()
+
+        
 end
 
 -- COMBAT TEXT SPAM REMOVE
@@ -481,3 +529,9 @@ SLASH_CHECKROLE1 = '/cr'
 
 SlashCmdList["KARATE"] = function() KarateGO() end
 SLASH_KARATE1 = "/karate"
+
+SlashCmdList["GUIDZ"] = function() ParseGUID(UnitGUID("target")) end
+SLASH_GUIDZ1="/mdid"
+
+SlashCmdList["MDDEBUG"] = function() debugTest() end
+SLASH_MDDEBUG1="/mddeb"
