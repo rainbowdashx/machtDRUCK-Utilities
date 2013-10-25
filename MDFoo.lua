@@ -205,7 +205,6 @@ MDFoo:RegisterEvent("PLAYER_LEVEL_UP");
 MDFoo:RegisterEvent("PLAYER_ENTERING_WORLD");
 MDFoo:RegisterEvent("MERCHANT_SHOW");
 MDFoo:RegisterEvent("ADDON_LOADED");
-MDFoo:RegisterEvent("CHAT_MSG_GUILD_ACHIEVEMENT");
 MDFoo:RegisterEvent("CHAT_MSG_GUILD");
 
 function MDFoo:ADDON_LOADED(...)
@@ -383,10 +382,6 @@ function MDFoo:CHAT_MSG_GUILD(...)
     end
 end
 
-function MDFoo:CHAT_MSG_GUILD_ACHIEVEMENT(...)
-    arg={...}
-    SendChatMessage("gz "..arg[2],"GUILD")
-end
 
 
 function KarateGO()
