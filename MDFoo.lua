@@ -384,8 +384,8 @@ function MDFoo:CHAT_MSG_GUILD(...)
 end
 
 function MDFoo:CHAT_MSG_GUILD_ACHIEVEMENT(...)
-    print(...)
-    SendChatMessage("gz","GUILD")
+    arg={...}
+    SendChatMessage("gz "..arg[2],"GUILD")
 end
 
 
