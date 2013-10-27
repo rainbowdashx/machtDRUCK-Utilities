@@ -170,7 +170,7 @@ local source={
                 ["Peiníger"]={chat="OFFICER",enabled=true},
                 ["Soterius"]={chat="OFFICER",enabled=true},
                 ["Parayok"]={chat="OFFICER",enabled=true},
-                ["Kágome"]={chat="OFFICER",enabled=true},
+                --["Kágome"]={chat="OFFICER",enabled=true},
                 ["Hollychris"]={chat="OFFICER",enabled=true},
                 ["Cralp"]={chat="OFFICER",enabled=true},
                 ["Calientê"]={chat="OFFICER",enabled=true},
@@ -369,6 +369,7 @@ end
 
 function MDFoo:CHAT_MSG_GUILD(...)
     local msg=...
+    local senderGUID = select(12,...)
     if (msg =="woh stronk smash") then
         local k={}
         for i,v in pairs(MDBam) do
@@ -378,6 +379,13 @@ function MDFoo:CHAT_MSG_GUILD(...)
         SendChatMessage("mdBÄM >> Stronk smash",defaultChat)
         for i=1,3 do
                 SendChatMessage(i..". ".. k[i].name.." with "..k[i].spell.." ("..comma_value(k[i].amount)..") ",defaultChat)
+        end
+    end
+    if (msg =="me smash") then
+        if(MDBam[senderGUID] ~=nil)then
+            SendChatMessage("Smash: ".. MDBam[senderGUID].name.." with "..MDBam[senderGUID].spellName.." ("..comma_value(MDBam[senderGUID].amount)..") ",defaultChat)
+        else
+            SendChatMessage("No Smash for You!","defaultChat")
         end
     end
 end
@@ -447,6 +455,8 @@ function ParseGUID(guid)
       local creatureID = tonumber("0x"..strsub(guid,7,10))
       local spawnCounter = tonumber("0x"..strsub(guid,11))
       print("Vehicle, ID #",creatureID,"spawn #",spawnCounter)
+  else
+      print("Player, ID #", strsub(guid,6))
    end
 end
 
@@ -464,7 +474,8 @@ function addDamage(destGUID,amount,source)
 end
 
 function debugTest()
-print("nothing")
+    
+    print(time())
         
 end
 
