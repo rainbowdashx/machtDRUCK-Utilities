@@ -170,7 +170,7 @@ local source={
                 ["Peiníger"]={chat="OFFICER",enabled=true},
                 ["Soterius"]={chat="OFFICER",enabled=true},
                 ["Parayok"]={chat="OFFICER",enabled=true},
-                --["Kágome"]={chat="OFFICER",enabled=true},
+                ["Kágome"]={chat="OFFICER",enabled=true},
                 ["Hollychris"]={chat="OFFICER",enabled=true},
                 ["Cralp"]={chat="OFFICER",enabled=true},
                 ["Calientê"]={chat="OFFICER",enabled=true},
@@ -179,7 +179,7 @@ local source={
                 ["Molossus"]={chat="OFFICER",enabled=true},
                 ["Comatose"]={chat="OFFICER",enabled=true},
                 ["Escobär"]={chat="OFFICER",enabled=true},
-
+                ["Goblerei"]={chat="OFFICER",enabled=true},
                 ["Bossqt"]={chat="OFFICER",enabled=true},
                 ["Monkmamal"]={chat="OFFICER",enabled=true},
                 ["Moonkinmoni"]={chat="OFFICER",enabled=true},
@@ -385,7 +385,7 @@ function MDFoo:CHAT_MSG_GUILD(...)
         if(MDBam[senderGUID] ~=nil)then
             SendChatMessage("Smash: ".. MDBam[senderGUID].name.." with "..MDBam[senderGUID].spellName.." ("..comma_value(MDBam[senderGUID].amount)..") ",defaultChat)
         else
-            SendChatMessage("No Smash for You!","defaultChat")
+            SendChatMessage("No Smash for you!",defaultChat)
         end
     end
 end
@@ -430,34 +430,35 @@ end
 
 function addCrit(source)
     --MDBam mod
-    if ((MDBam[source.GUID] ~= nil and MDBam[source.GUID].amount < source.amount) or MDBam[source.GUID] == nil) then
-        MDBam[source.GUID]=source
-        MDBamDB=MDBam
-        SendChatMessage("mdBÄM >> NEW CRIT RECORD for "..source.name.." (".. comma_value(source.amount) ..") with "..source.spellName,defaultChat)
+    local first3 = tonumber("0x"..strsub(source.GUID, 3,5))
+    local unitType = bit.band(first3,0x00f)
+    if (unitType == 0x008) then
+        if ((MDBam[source.GUID] ~= nil and MDBam[source.GUID].amount < source.amount) or MDBam[source.GUID] == nil) then
+            MDBam[source.GUID]=source
+            MDBamDB=MDBam
+            SendChatMessage("mdBÄM >> NEW CRIT RECORD for "..source.name.." (".. comma_value(source.amount) ..") with "..source.spellName,defaultChat)
+        end
     end
 end
 
 function ParseGUID(guid)
-   local first3 = tonumber("0x"..strsub(guid, 3,5))
-   local unitType = bit.band(first3,0x00f)
-
-   if (unitType == 0x000) then
+    local first3 = tonumber("0x"..strsub(guid, 3,5))
+    local unitType = bit.band(first3,0x00f)
+    if (unitType == 0x008) then
       print("Player, ID #", strsub(guid,6))
-   elseif (unitType == 0x003) then
+    elseif (unitType == 0x003) then
       local creatureID = tonumber("0x"..strsub(guid,7,10))
       local spawnCounter = tonumber("0x"..strsub(guid,11))
       print("NPC, ID #",creatureID,"spawn #",spawnCounter)
-   elseif (unitType == 0x004) then
+    elseif (unitType == 0x004) then
       local petID = tonumber("0x"..strsub(guid,7,10))
       local spawnCounter = tonumber("0x"..strsub(guid,11))
       print("Pet, ID #",petID,"spawn #",spawnCounter)
-   elseif (unitType == 0x005) then
+    elseif (unitType == 0x005) then
       local creatureID = tonumber("0x"..strsub(guid,7,10))
       local spawnCounter = tonumber("0x"..strsub(guid,11))
       print("Vehicle, ID #",creatureID,"spawn #",spawnCounter)
-  else
-      print("Player, ID #", strsub(guid,6))
-   end
+    end
 end
 
 function addDamage(destGUID,amount,source)
