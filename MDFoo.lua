@@ -165,6 +165,7 @@ local source={
     			["Kikitsa"]={chat="OFFICER",enabled=true},
                 ["Xerathyl"]={chat="OFFICER",enabled=true},
                 ["Sheeraz"]={chat="OFFICER",enabled=true},
+                ["Zorandor"]={chat="OFFICER",enabled=true},
                 ["Cerie"]={chat="OFFICER",enabled=true},
                 ["Dêmo"]={chat="OFFICER",enabled=true},
                 ["Peiníger"]={chat="OFFICER",enabled=true},
