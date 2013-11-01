@@ -17,6 +17,8 @@ local spells={
                 [51722]={chat="OFFICER",enabled=true},       --DISMANTLE
                 [73651]={chat="OFFICER",enabled=true},   --RECUPERATE
 
+                --RAID SHIT
+                [114207] = {caht="SAY",enabled=true},   --SKULL BANNER
                 
                 --RAID COOL DOWS
                 [51052]={chat="SAY",enabled=true},    --ANTI MAGIC ZONE
@@ -388,6 +390,27 @@ function MDFoo:CHAT_MSG_GUILD(...)
         else
             SendChatMessage("No Smash for you!",defaultChat)
         end
+    end
+    if(msg=="woh progamz") then
+        local guildPlayers = GetNumGuildMembers()
+            local name, rank, rankIndex, level, class, zone, note, 
+                officernote, online, status, classFileName, 
+                achievementPoints, achievementRank, isMobile = GetGuildRosterInfo(math.random(guildPlayers));
+
+        SendChatMessage("stronk playa is: "..rank.." "..name.." the "..note.."("..officernote..")" ,"GUILD")
+    end
+    if (msg=="ime stronk team") then
+        local guildPlayers = GetNumGuildMembers()
+        local lane={
+                "SOLO-TOP: ","MID: ","JUNGLE: ","ADC: ","SUPPORT: "
+                    }
+        for i=1,5 do
+            local name, rank, rankIndex, level, class, zone, note, 
+                officernote, online, status, classFileName, 
+                achievementPoints, achievementRank, isMobile = GetGuildRosterInfo(math.random(guildPlayers));
+
+            SendChatMessage(lane[i]..rank.." "..name.." the "..note.."("..officernote..")" ,"GUILD")
+        end        
     end
 end
 
