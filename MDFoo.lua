@@ -1,11 +1,13 @@
 local spells={
+
+--[[
 				[31224]={chat="OFFICER",enabled=true},   --CLOAK OF SHADOWS
 				[5277]={chat="OFFICER",enabled=true},    --EVASION
 				[2983]={chat="OFFICER",enabled=true},    --SPRINT
 				[14185]={chat="OFFICER",enabled=true},   --PREPARATION
 				[1966]={chat="OFFICER",enabled=true},    --FEINT
-				[76577]={chat="SAY",enabled=true},       --SMOKE BOMB
-				[57934]={chat="OFFICER",enabled=true},   --TRICKS OF TRADE
+
+				
 				[74001]={chat="OFFICER",enabled=true},   --COMBAT READINESS
                 [2094] ={chat="OFFICER",enabled=true},       --BLIND
                 [25046]={chat="OFFICER",enabled=true},   --ARCANE TORRENT ENERGY
@@ -16,10 +18,13 @@ local spells={
                 [14183]={chat="OFFICER",enabled=true},   --PREMADITATION
                 [51722]={chat="OFFICER",enabled=true},       --DISMANTLE
                 [73651]={chat="OFFICER",enabled=true},   --RECUPERATE
-
+]]
+                [76577]={chat="SAY",enabled=true},       --SMOKE BOMB
+                [57934]={chat="OFFICER",enabled=true},   --TRICKS OF TRADE
                 --RAID SHIT
                 [114207] = {caht="SAY",enabled=true},   --SKULL BANNER
-                
+                [120668] ={chat="SAY",enabled=true},            --storm lash
+  --[[              
                 --RAID COOL DOWS
                 [51052]={chat="SAY",enabled=true},    --ANTI MAGIC ZONE
                 [740]={chat="SAY",enabled=true},      --TRANQUILITY
@@ -117,7 +122,7 @@ local spells={
                 [871]  ={chat="OFFICER",enabled=true},              --• Shield wall protection (871) defensive (40% all damage reduction, 12s/2m)
 
                 --MISC
-                [120668] ={chat="SAY",enabled=true},            --storm lash
+                
                 [114556] ={chat="OFFICER",enabled=true},                                 --• Purgatory talent (114556) dmg absorb shield, has to be healed off or the DK will die
                 [61999]  ={chat="OFFICER",enabled=true},                     --• Raise ally (61999) battle rez
                 [49016]  ={chat="OFFICER",enabled=true},                         --• Unholy frenzy unholy (49016) if not glyphed, player takes damage (-2% hp every 3s for 30s)
@@ -161,9 +166,10 @@ local spells={
                 [20707]  ={chat="OFFICER",enabled=true},                     --• Soulstone (20707) battle rez
                 [29858]  ={chat="OFFICER",enabled=true},                     --• Soulshatter (29858) threat reducing
                 [108482] ={chat="OFFICER",enabled=true},                     --• Unbound will talent (108482) dispel
-
+]]
 				}
 local source={
+
     			["Kikitsa"]={chat="OFFICER",enabled=true},
                 ["Xerathyl"]={chat="OFFICER",enabled=true},
                 ["Sheeraz"]={chat="OFFICER",enabled=true},
@@ -186,6 +192,9 @@ local source={
                 ["Bossqt"]={chat="OFFICER",enabled=true},
                 ["Monkmamal"]={chat="OFFICER",enabled=true},
                 ["Moonkinmoni"]={chat="OFFICER",enabled=true},
+                ["Slamshady"]={chat="OFFICER",enabled=true},
+                ["Cezar"]={chat="OFFICER",enabled=true},
+                ["Îzy"]={chat="OFFICER",enabled=true},
 			}
 
 
@@ -196,6 +205,7 @@ BINDING_NAME_KARATE = "Call Karate Target"
 local xp_count =0
 
 local defaultChat="GUILD"
+local karateChat="OFFICER"
 local karateMode="CALL" --ALL  , MD , CALL
 
 local MDFoo = CreateFrame("frame")
@@ -209,6 +219,9 @@ MDFoo:RegisterEvent("PLAYER_ENTERING_WORLD");
 MDFoo:RegisterEvent("MERCHANT_SHOW");
 MDFoo:RegisterEvent("ADDON_LOADED");
 MDFoo:RegisterEvent("CHAT_MSG_GUILD");
+MDFoo:RegisterEvent("RESURRECT_REQUEST");
+
+
 
 function MDFoo:ADDON_LOADED(...)
     if (...=="MDFoo" ) then
@@ -296,10 +309,10 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
                 table.insert(k,{name=v.name,amount=v.amount})
             end
             sort(k, function(a,b) return a.amount > b.amount end)
-            SendChatMessage("Karate --- auf "..destName,defaultChat)
+            SendChatMessage("Karate --- auf "..destName,karateChat)
             for i,v in pairs(k) do
                 if (i>5) then break end
-                SendChatMessage(i .. ". ".. v.name .. " >> " ..round2((v.amount*100)/total) .. "% " .. "("..comma_value(v.amount)..")",defaultChat)
+                SendChatMessage(i .. ". ".. v.name .. " >> " ..round2((v.amount*100)/total) .. "% " .. "("..comma_value(v.amount)..")",karateChat)
             end
             targets[destGUID]=nil
         end
@@ -347,13 +360,13 @@ function MDFoo:MERCHANT_SHOW(...)
 end
 
 function MDFoo:PLAYER_ENTERING_WORLD(...)
-  --[[BOSS FRAMES
+  
   	for i = 1, 4 do 
 		local frame = _G["Boss"..i.."TargetFrame"]
 		frame:ClearAllPoints()
 		frame:SetPoint("CENTER",UIParent,"CENTER",-450,200)
 		frame.SetPoint = function() end	
-	end]]
+	end
     targets={}
 end
   
@@ -414,6 +427,9 @@ function MDFoo:CHAT_MSG_GUILD(...)
     end
 end
 
+function MDFoo:RESURRECT_REQUEST(...)
+    AcceptResurrect();
+end
 
 
 function KarateGO()
@@ -423,7 +439,7 @@ function KarateGO()
     source.name=UnitName("player")
     source.GUID=UnitGUID("player")
     if (dest ~= nil) then
-        SendChatMessage("KARATE CALL ON:  " .. UnitName("target"),defaultChat)
+        SendChatMessage("KARATE CALL ON:  " .. UnitName("target"),karateChat)
         addDamage(dest,0,source)
     else
         print("NO KARATE TARGET")
