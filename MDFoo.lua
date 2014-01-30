@@ -20,7 +20,7 @@ local spells={
                 [73651]={chat="OFFICER",enabled=true},   --RECUPERATE
 ]]
                 [76577]={chat="SAY",enabled=true},       --SMOKE BOMB
-                [57934]={chat="OFFICER",enabled=true},   --TRICKS OF TRADE
+                [57934]={chat="SAY",enabled=true},   --TRICKS OF TRADE
                 --RAID SHIT
                 [114207] = {caht="SAY",enabled=true},   --SKULL BANNER
                 [120668] ={chat="SAY",enabled=true},            --storm lash
@@ -195,6 +195,7 @@ local source={
                 ["Slamshady"]={chat="OFFICER",enabled=true},
                 ["Cezar"]={chat="OFFICER",enabled=true},
                 ["Îzy"]={chat="OFFICER",enabled=true},
+                ["Hansebaenger"]={chat="OFFICER",enabled=true},
 			}
 
 
