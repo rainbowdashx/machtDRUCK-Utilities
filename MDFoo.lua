@@ -22,9 +22,10 @@ local spells={
                 [76577]={chat="SAY",enabled=true},       --SMOKE BOMB
                 [57934]={chat="SAY",enabled=true},   --TRICKS OF TRADE
                 --RAID SHIT
-                [114207] = {caht="SAY",enabled=true},   --SKULL BANNER
+                [114207] = {chat="SAY",enabled=true},   --SKULL BANNER
                 [120668] ={chat="SAY",enabled=true},            --storm lash
-  --[[              
+                
+                --[[
                 --RAID COOL DOWS
                 [51052]={chat="SAY",enabled=true},    --ANTI MAGIC ZONE
                 [740]={chat="SAY",enabled=true},      --TRANQUILITY
@@ -166,8 +167,10 @@ local spells={
                 [20707]  ={chat="OFFICER",enabled=true},                     --• Soulstone (20707) battle rez
                 [29858]  ={chat="OFFICER",enabled=true},                     --• Soulshatter (29858) threat reducing
                 [108482] ={chat="OFFICER",enabled=true},                     --• Unbound will talent (108482) dispel
-]]
+
+                ]]
 				}
+
 local source={
 
     			["Kikitsa"]={chat="OFFICER",enabled=true},
@@ -196,6 +199,7 @@ local source={
                 ["Cezar"]={chat="OFFICER",enabled=true},
                 ["Îzy"]={chat="OFFICER",enabled=true},
                 ["Hansebaenger"]={chat="OFFICER",enabled=true},
+                ["Nervus"]={chat="OFFICER",enabled=true},
 			}
 
 
@@ -223,10 +227,12 @@ MDFoo:RegisterEvent("CHAT_MSG_GUILD");
 MDFoo:RegisterEvent("RESURRECT_REQUEST");
 
 
-
 function MDFoo:ADDON_LOADED(...)
     if (...=="MDFoo" ) then
         MDBam=MDBamDB
+        if (MDBam == nil) then
+            MDBam = {}
+        end
     end
 end
 
@@ -235,10 +241,14 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
     local timestamp, type, hideCaster,                                                                    
     sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags = ...  
       
+    local isInRaid = UnitInRaid(sourceName);
+
     if (type == 'SPELL_DAMAGE' or type == 'SPELL_BUILDING_DAMAGE' or type == 'RANGE_DAMAGE' or type == 'SWING_DAMAGE'or type == 'SPELL_PERIODIC_DAMAGE') then
 
         local spellId, spellName, spellSchool,                                                                      
         amount, overkill, school, resisted, blocked, absorbed, critical, glancing, crushing = select(12,...)
+
+        
 
         if ("SWING_DAMAGE" == type) then
             amount, overkill, school, resisted, blocked, absorbed, critical, glancing, crushing = select(12,...)
@@ -251,7 +261,9 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
             addDamage(destGUID,(amount or 0),source)
         end
         
-        if (critical and source[sourceName]) then
+        
+            
+        if (critical and isInRaid) then            
             local source={}
             source.name=sourceName
             source.GUID=sourceGUID
@@ -263,7 +275,7 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
 
     if (type=="SPELL_HEAL") then
         local spellId, spellName, spellSchool,amount,overhealing,absorbed,critical = select(12,...)
-        if (critical and source[sourceName]) then
+        if (critical and isInRaid) then
             local source={}
             source.name=sourceName
             source.GUID=sourceGUID
@@ -276,7 +288,7 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
 
     if (type== "SPELL_CAST_SUCCESS") then
     	local spellId, spellName = select(12,...)
-    	if (spells[spellId] and source[sourceName]) then
+    	if (spells[spellId] and isInRaid) then
     		local caster = sourceName
             local spell = spells[spellId]
             local targetMsg =""
@@ -289,7 +301,7 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
     	end
     end
 
-    if (type=="SPELL_INTERRUPT") then
+ --[[   if (type=="SPELL_INTERRUPT") then
         local spellId, spellName, spellSchool,extraSpellId, extraSpellName,extraSchool = select(12,...)
         if (source[sourceName]) then
             local caster = sourceName
@@ -299,7 +311,7 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
             end
             SendChatMessage(caster .. " ++ " .. spellName .. targetMsg .. " >> " .. extraSpellName ,"SAY");
         end
-    end
+    end]]
 
     if (type=="UNIT_DIED") then
         local total=0
@@ -394,7 +406,7 @@ function MDFoo:CHAT_MSG_GUILD(...)
         end
         sort(k, function(a,b) return a.amount > b.amount end)
         SendChatMessage("mdBÄM >> Stronk smash",defaultChat)
-        for i=1,3 do
+        for i=1,10 do
                 SendChatMessage(i..". ".. k[i].name.." with "..k[i].spell.." ("..comma_value(k[i].amount)..") ",defaultChat)
         end
     end
@@ -471,9 +483,7 @@ end
 
 function addCrit(source)
     --MDBam mod
-    local first3 = tonumber("0x"..strsub(source.GUID, 3,5))
-    local unitType = bit.band(first3,0x00f)
-    if (unitType == 0x008) then
+    if (string.match(source.GUID, "Player")) then
         if ((MDBam[source.GUID] ~= nil and MDBam[source.GUID].amount < source.amount) or MDBam[source.GUID] == nil) then
             MDBam[source.GUID]=source
             MDBamDB=MDBam
@@ -483,7 +493,7 @@ function addCrit(source)
 end
 
 function ParseGUID(guid)
-    local first3 = tonumber("0x"..strsub(guid, 3,5))
+    --[[local first3 = tonumber("0x"..strsub(guid, 3,5))
     local unitType = bit.band(first3,0x00f)
     if (unitType == 0x008) then
       print("Player, ID #", strsub(guid,6))
@@ -499,7 +509,8 @@ function ParseGUID(guid)
       local creatureID = tonumber("0x"..strsub(guid,7,10))
       local spawnCounter = tonumber("0x"..strsub(guid,11))
       print("Vehicle, ID #",creatureID,"spawn #",spawnCounter)
-    end
+    end]]
+    print("ID: "..guid)
 end
 
 function addDamage(destGUID,amount,source)
@@ -583,3 +594,5 @@ SLASH_GUIDZ1="/mdid"
 
 SlashCmdList["MDDEBUG"] = function() debugTest() end
 SLASH_MDDEBUG1="/deb"
+
+
