@@ -243,6 +243,8 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
       
     local isInRaid = UnitInRaid(sourceName);
 
+    
+
     if (type == 'SPELL_DAMAGE' or type == 'SPELL_BUILDING_DAMAGE' or type == 'RANGE_DAMAGE' or type == 'SWING_DAMAGE'or type == 'SPELL_PERIODIC_DAMAGE') then
 
         local spellId, spellName, spellSchool,                                                                      
@@ -262,14 +264,16 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
         end
         
         
-            
-        if (critical and isInRaid) then            
-            local source={}
-            source.name=sourceName
-            source.GUID=sourceGUID
-            source.amount=amount
-            source.spellName=spellName
-            addCrit(source)
+        if (string.match(sourceGUID, "Player")) then
+            local guildinfo = GetGuildInfo(sourceName)
+            if (critical and isInRaid and guildinfo == "macht DRUCK") then            
+                local source={}
+                source.name=sourceName
+                source.GUID=sourceGUID
+                source.amount=amount
+                source.spellName=spellName
+                addCrit(source)
+            end
         end
     end
 
@@ -483,13 +487,12 @@ end
 
 function addCrit(source)
     --MDBam mod
-    if (string.match(source.GUID, "Player")) then
-        if ((MDBam[source.GUID] ~= nil and MDBam[source.GUID].amount < source.amount) or MDBam[source.GUID] == nil) then
-            MDBam[source.GUID]=source
-            MDBamDB=MDBam
-            SendChatMessage("mdBÄM >> NEW CRIT RECORD for "..source.name.." (".. comma_value(source.amount) ..") with "..source.spellName,defaultChat)
-        end
+    if ((MDBam[source.GUID] ~= nil and MDBam[source.GUID].amount < source.amount) or MDBam[source.GUID] == nil) then
+        MDBam[source.GUID]=source
+        MDBamDB=MDBam
+        SendChatMessage("mdBÄM >> NEW CRIT RECORD for "..source.name.." (".. comma_value(source.amount) ..") with "..source.spellName,defaultChat)
     end
+    
 end
 
 function ParseGUID(guid)
