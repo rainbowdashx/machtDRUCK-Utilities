@@ -266,6 +266,7 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
         
         if (string.match(sourceGUID, "Player")) then
             local guildinfo = GetGuildInfo(sourceName)
+            
             if (critical and isInRaid and guildinfo == "macht DRUCK") then            
                 local source={}
                 source.name=sourceName
@@ -279,13 +280,18 @@ function MDFoo:COMBAT_LOG_EVENT_UNFILTERED(...)
 
     if (type=="SPELL_HEAL") then
         local spellId, spellName, spellSchool,amount,overhealing,absorbed,critical = select(12,...)
-        if (critical and isInRaid) then
-            local source={}
-            source.name=sourceName
-            source.GUID=sourceGUID
-            source.amount=amount
-            source.spellName=spellName
-            addCrit(source)
+
+        if (string.match(sourceGUID, "Player")) then
+            local guildinfo = GetGuildInfo(sourceName)
+
+            if (critical and isInRaid and guildinfo == "macht DRUCK") then
+                local source={}
+                source.name=sourceName
+                source.GUID=sourceGUID
+                source.amount=amount
+                source.spellName=spellName
+                addCrit(source)
+            end
         end
     end
        
